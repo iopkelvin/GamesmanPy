@@ -64,7 +64,13 @@ class LunarLockout(Game):
         """
         Returns the starting position of the game.
         """
-        pass
+        red = 0
+        helpers = [6, 8, 16, 18]
+
+        if red == 12:
+            raise ValueError("Red cannot start at exit")
+
+        return pack([red] + helpers)
     
 
     # Decode the state into robot positions.
@@ -116,6 +122,21 @@ class LunarLockout(Game):
         """
         pass
 
+        robots = unpack(position)
+
+        board = [["." for _ in range(5)] for _ in range(5)]
+        board[2][2] = "X"
+
+        symbols = ["R", "A", "B", "C", "D"]
+
+        for i, pos in enumerate(robots):
+            if pos == 31:
+                continue
+            r = pos // 5
+            c = pos % 5
+            board[r][c] = symbols[i]
+
+        return "\n".join(" ".join(row) for row in board)
 
     # Parse a readable board layout into robot positions.
     # Validate positions are within bounds and not duplicated.
@@ -126,7 +147,28 @@ class LunarLockout(Game):
         Returns the position from a string representation of the position.
         Input string is StringMode.Readable.
         """
-        pass
+    
+        lines = strposition.strip().split("\n")
+
+        robots = [31, 31, 31, 31, 31]
+
+        symbol_map = {
+        "R": 0,
+        "A": 1,
+        "B": 2,
+        "C": 3,
+        "D": 4
+        }
+
+        for r in range(5):
+            cells = lines[r].split()
+            for c in range(5):
+                cell = cells[c]
+                if cell in symbol_map:
+                    idx = r * 5 + c
+                    robots[symbol_map[cell]] = idx
+
+        return pack(robots)
 
 
     # Decode the move into robot index and direction.
@@ -135,7 +177,19 @@ class LunarLockout(Game):
         """
         Returns a string representation of the move based on the given mode.
         """
-        pass
+       
+        robot = move // 4
+        direction = move % 4
+
+        directions = ["UP", "RIGHT", "DOWN", "LEFT"]
+
+        if robot == 0:
+            name = "Red"
+        else:
+            name = f"Robot {robot}"
+
+        return f"{name} {directions[direction]}"
+        
 
     
     # Helper responsibilities:
